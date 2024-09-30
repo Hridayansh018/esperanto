@@ -190,10 +190,41 @@ app.post("/image-upload", upload.single("image"), async (req,res)=> {
     }
 })
 
+
+//Delete an image from folder
+app.delete("/delete-image", async (req, res) => {
+    const {imageUrl} = req.body;
+
+    if(!imageUrl){
+        return res.status(400).json({ error:true, message: "imageUrl parameter is required"});
+    }
+
+    try{
+    // EXTRACT THE FILENAME FROM THE IMAGEURL
+    const filename = path.basename(imageUrl);
+
+    //DEFINE THE FILE PATH
+    const filePath = path.join(__dirname, 'uploads', filename)
+
+    //CHECK IF THE FILE EXISTS
+        if(fs.existsSync(filePath)){
+        //DELETE THE FILES FROM UPLOADS FOLDER
+        fs.unlinkSync(filePath);
+        res.status(200).json({ message:"image deleted "})
+        } else {
+        res.status(200).json({ error:true, message: "Image Not Found" });
+        }
+    }
+    catch(error){
+        res.status(500).json({ error: true, message: error.message })
+    }
+
+});
+
+
 // Server static files from the uploads and assets directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
-
 
 
 app.listen(8000, () => {
