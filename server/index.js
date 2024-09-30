@@ -8,11 +8,15 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const upload = require("./multer");
+const fs = require("fs");
+const path = require("path");
 
 const { authenticateToken } = require("./utils")
 
 const User = require("./models/user.model")
-const TravelStory = require("./models/travel.model")
+const TravelStory = require("./models/travel.model");
+const { error } = require("console");
 
 mongoose.connect(config.connectionString);
 
@@ -169,9 +173,28 @@ app.get("/get-all-stories", authenticateToken, async (req,res) => {
 })
 
 // Rout to handel image upload
-app.post("/image-upload", authenticateToken, async (req,res)=> {
+app.post("/image-upload", upload.single("image"), async (req,res)=> {
+    try{
+        if(!req.file){
+            return res.status(400).json({
+                error:true,
+                message:"No Image Uploaded"
+            })
+        }
+        const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
 
+        res.status(201).json({ imageUrl });
+    }
+    catch (error){
+        res.status(500).json({ error: true, message: error.message });
+    }
 })
+
+// Server static files from the uploads and assets directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/assets", express.static(path.join(__dirname, "assets")));
+
+
 
 app.listen(8000, () => {
     console.log("Server is running on port 8000");

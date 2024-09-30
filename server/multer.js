@@ -1,3 +1,5 @@
+//multer.js
+
 const multer = require("multer");
 const path = require("path");
 
@@ -19,3 +21,7 @@ const fileFilter = (req, file, cb) => {
         cb( new Error("Only Images are allowed"), false);
     }
 }
+
+const upload = multer({ storage, fileFilter})
+
+module.exports = upload
