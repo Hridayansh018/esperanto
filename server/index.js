@@ -26,7 +26,6 @@ app.use(express.json());
 app.use(cors({ origin: "*" }));
 
 //------------------------------------------------USER AUTHENTICATION-----------------//
-
 // create account
 app.post("/create-account", async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -91,7 +90,7 @@ app.post("/login", async (req, res) => {
   const isPassword = await bcrypt.compare(password, user.password);
   if (!isPassword) {
     return res.status(400).json({
-      message: "Inalid password",
+      message: "Invalid password",
     });
   }
 
