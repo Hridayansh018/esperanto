@@ -10,6 +10,21 @@
     }
 }
 
+/*Custom scrollbar styles*/
+.scrollbar::-webkit-scrollbar{
+    width:3px;
+    height:3px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb{
+    background-color:#057c8e;
+    border-radius:3px;
+}
+
+.scrollbar::-webkit-scrollbar-track{
+    background-color:rgb(172,201,229);
+}
+
 @layer components {
     .input-box {
         @apply w-full text-sm bg-cyan-600/5 rounded px-5 py-3 mb-4 outline-none
@@ -29,5 +44,9 @@
 
     .signup-ui-box {
         @apply w-96 h-[450px] rounded-full bg-cyan-500 rotate-45 absolute right-4
+    }
+
+    .model-box{
+        @apply w-[80vh] md:w-[40%] h-[80vh] bg-white rounded-lg mx-auto mt-14 p-5 overflow-y-scroll scrollbar fill-zinc-50;
     }
 }
