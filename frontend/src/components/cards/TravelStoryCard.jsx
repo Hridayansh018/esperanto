@@ -37,10 +37,10 @@ const TravelStoryCard = ({
       <div className="flex items-start justify-between px-3 rounded-md border">
         <div className="p-2">
           <h3 className="text-xl font-semibold">{title}</h3>
-          <p className=" text-gray-700 text-xs">Visited: {visitedDate ? moment(visitedDate).format("Do MMM YYY") : "-"}</p>
+          <p className=" text-gray-700 text-xs">Visited: {visitedDate ? moment(visitedDate).format("Do MMM YYYY") : "-"}</p>
           
           <p className="my-2">{story}</p>
-          <p className=" text-gray-700 text-xs">Posted on: {createdOn ? moment(createdOn).format("Do MMM YYY") : "-"}</p>
+          <p className=" text-gray-700 text-xs">Posted on: {createdOn ? moment(createdOn).format("Do MMM YYYY") : "-"}</p>
           <div className="flex items-center text-cyan-400 font-semibold mt-1 bg-cyan-300 bg-opacity-30 w-32 h-6 justify-center rounded-sm">
             <GrMapLocation className="mr-1" />
             <span className="p-2">
