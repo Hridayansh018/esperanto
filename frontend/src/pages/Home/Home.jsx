@@ -93,7 +93,7 @@ const Home = () => {
       </div>
 
       {/*add and edit travel story model*/}
-
+      
       <Modal 
       isOpen={openAddEditModal.isShown}
       onRequestClose={()=>{}}

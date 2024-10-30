@@ -37,7 +37,7 @@ const ProfileInfo = ({ userInfo = { fullName: "Guest User" }, onLogout }) => {
           {localUserInfo?.fullName || "Guest User"}
         </p>
         <button
-          className="text-blue-600 hover:text-blue-800 text-xs font-semibold"
+          className="btn-small hover:bg-blue-500 "
           onClick={onLogout}
         >
           Logout

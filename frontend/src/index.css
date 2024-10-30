@@ -49,4 +49,20 @@
     .model-box{
         @apply w-[80vh] md:w-[40%] h-[80vh] bg-white rounded-lg mx-auto mt-14 p-5 overflow-y-scroll scrollbar fill-zinc-50;
     }
+
+    .btn-small{
+        @apply flex items-center gap-1 text-xs font-medium bg-cyan-50 text-blue-400 shadow-cyan-100/0 border border-cyan-100 hover:bg-cyan-300 hover:text-white rounded px-3 py-[3px];
+    }
+
+    .btn-delete{
+        @apply flex items-center gap-1 text-xs font-medium bg-rose-50 text-rose-500 shadow-rose-100/0 border border-rose-100 hover:bg-rose-500 hover:text-white rounded px-3 py-[3px];
+    }
+
+    .input-label{
+        @apply text-xs text-slate-400
+    }
+
+    .input-box{
+        @apply text-2xl text-slate-950 outline-none bg-slate-100 p-2 rounded-md
+    }
 }
