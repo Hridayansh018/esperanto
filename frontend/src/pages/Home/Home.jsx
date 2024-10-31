@@ -7,20 +7,25 @@ import TravelStoryCard from "../../components/cards/TravelStoryCard";
 import AddEditTravelStory from "./AddEditTravelStory";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Modal from "react-modal"
-import {MdAdd} from "react-icons/md"
-
+import Modal from "react-modal";
+import { MdAdd } from "react-icons/md";
+import ViewTravelStory from "./ViewTravelStory";
 
 const Home = () => {
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const [allStories, setAllStories] = useState([]);
+
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
     type: "add",
     data: null,
   });
-  
+
+  const [openViewModal, setOpenViewModal] = useState({
+    isShown: false,
+    data: null,
+  });
 
   const getAllStories = async () => {
     try {
@@ -42,17 +47,16 @@ const Home = () => {
       });
 
       if (response.data.story) {
-        getAllStories(response.data.story)
+        getAllStories(response.data.story);
       }
     } catch (error) {
       console.log("An unexpected error occurred", error);
     }
   };
 
-  //handelviewstory
-  const handleViewStory = () =>{
-
-  }
+  const handleViewStory = (data) => {
+    setOpenViewModal({ isShown: true, data });
+  };
 
   useEffect(() => {
     getUserInfo(setUserInfo, navigate);
@@ -70,7 +74,7 @@ const Home = () => {
                 {allStories.map((item) => (
                   <TravelStoryCard
                     key={item._id}
-                    imgUrl={item.imageUrl || "https://via.placeholder.com/150"} // Fallback image URL
+                    imgUrl={item.imageUrl || "https://via.placeholder.com/150"}
                     title={item.title}
                     story={item.story}
                     createdOn={item.createdOn}
@@ -92,39 +96,46 @@ const Home = () => {
         </div>
       </div>
 
-      {/*add and edit travel story model*/}
-      
+      {/* Add and Edit Travel Story Modal */}
       <Modal 
-      isOpen={openAddEditModal.isShown}
-      onRequestClose={()=>{}}
-      style={{overlay:{
-        backgroundColor:"rgba(0,0,0,0.2)",
-        zIndex: 999,
-        }
-      }}
-      appElement={document.getElementById('root')}
-      className="model-box"
+        isOpen={openAddEditModal.isShown}
+        onRequestClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
+        style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 999 } }}
+        appElement={document.getElementById('root')}
+        className="model-box"
       >
         <AddEditTravelStory 
-        type={openAddEditModal.type}
-        storyInfo={openAddEditModal.data}
-        onClose={()=>{
-          setOpenAddEditModal({ isShown:false, type:"add", data:null });
-        }}
+          type={openAddEditModal.type}
+          storyInfo={openAddEditModal.data}
+          onClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
         />
       </Modal>
 
-      <button className="w-16 h-16 flex items-center rounded-full bg-blue-400 hover:bg-cyan-400 fixed right-10 bottom-10 justify-center"
-      onClick={()=>{
-        setOpenAddEditModal({ isShown:true, type:"add", data:null });
-      }}>
+      {/* View Travel Story Modal */}
+      <Modal 
+        isOpen={openViewModal.isShown}
+        onRequestClose={() => setOpenViewModal({ isShown: false, data: null })}
+        style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 999 } }}
+        appElement={document.getElementById('root')}
+        className="model-box"
+      >
+        <ViewTravelStory 
+          type={openViewModal.type}
+          storyInfo={openViewModal.data || null}
+          onClose={() => setOpenViewModal({ isShown: false, data: null })}
+          onEditClick={() => {}}
+          onDeleteClick={() => {}}
+        />
+      </Modal>
 
+      <button
+        className="w-16 h-16 flex items-center rounded-full bg-blue-400 hover:bg-cyan-400 fixed right-10 bottom-10 justify-center"
+        onClick={() => setOpenAddEditModal({ isShown: true, type: "add", data: null })}
+      >
         <MdAdd className="text-[50px] text-white items-center" />
-
       </button>
 
       <ToastContainer />  
-
     </div>
   );
 };

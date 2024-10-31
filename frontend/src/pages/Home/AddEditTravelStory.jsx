@@ -1,8 +1,14 @@
+//AddEditTravelStory
 import { MdAdd, MdClose, MdUpdate } from "react-icons/md";
 import DateSelector from "../../components/input/DateSelector";
 import { useState } from "react";
 import ImageSelector from "../../components/input/ImageSelector";
 import TagInput from "../../components/input/TagInput";
+import axiosInstance from "../../utils/axiosInstance";
+import moment from "moment";
+import { toast } from "react-toastify";
+import uploadImage from "../../utils/uploadImage";
+
 
 const AddEditTravelStory = ({
   storyInfo,
@@ -10,15 +16,98 @@ const AddEditTravelStory = ({
   onClose,
   getAllStories
 }) => {
-  const [visitedDate, setVisitedDate] = useState(null);
-  const [visitedLocation, setVisitedLocation] = useState([]);
-  const [title, setTitle] = useState('');
-  const [storyImg, setStoryImg] = useState(null);
-  const [story, setStory] = useState('');
+  const [visitedDate, setVisitedDate] = useState(storyInfo?.visitedDate || null);
+  const [visitedLocation, setVisitedLocation] = useState(storyInfo?.visitedLocation || []);
+  const [title, setTitle] = useState(storyInfo?.title || '');
+  const [storyImg, setStoryImg] = useState(storyInfo?.image || null);
+  const [story, setStory] = useState(storyInfo?.story || '');
+  const [error, setError] = useState("");
 
-  const handleAddOrUpdateClick = async () => { };
 
-  const handleDeleteClick = async () => { };
+  
+
+  const updateTravelStory = async () => {
+    try {
+      let imageUrl = storyImg;
+  
+      if (storyImg && typeof storyImg === "object") {
+        // Only upload if storyImg is a file object, not an existing URL
+        const imgUploadRes = await uploadImage(storyImg);
+        imageUrl = imgUploadRes.imageUrl || "";
+      }
+  
+      const response = await axiosInstance.post(`/edit-story/${storyInfo.id}`, {
+        title,
+        story,
+        imageUrl,
+        visitedLocation,
+        visitedDate: visitedDate ? moment(visitedDate).valueOf() : moment().valueOf(),
+      });
+  
+      if (response.data && response.data.story) {
+        toast.success("Story Updated Successfully");
+        getAllStories(); // Refresh stories
+        onClose(); // Close the modal
+      }
+    } catch (error) {
+      console.log("Error updating story:", error);
+      toast.error("Failed to update story. Please try again.");
+    }
+  };
+  
+
+  const addNewTravelStory = async () => {
+    try{
+      let imageUrl = "";
+
+      //upload image if present
+      if (storyImg) {
+        try {
+          const imgUploadRes = await uploadImage(storyImg);
+          imageUrl = imgUploadRes.imageUrl || "";
+          onClose();
+        } catch (error) {
+          console.log("Image upload failed:", error);
+          toast.error("Image upload failed. Please try again.");
+          return;
+        }
+      }
+      
+      const response = await axiosInstance.post("/add-travel-story", {
+        title,
+        story,
+        imageUrl: imageUrl || "",
+        visitedLocation,
+        visitedDate: visitedDate
+        ? moment(visitedDate).valueOf()
+        : moment().valueOf(),
+      });
+
+      if(response.data && response.data.story){
+        toast.success("Story Added Successfully");
+        // Refresh Stories
+        getAllStories();
+        //close the modal
+        onClose();
+      }
+    }
+    catch (error) {
+      console.log("Error adding story:", error);
+      toast.error("Failed to add story. Please try again.");
+    }    
+  };
+
+  const handleAddOrUpdateClick = async () => {
+    setError(""); // Clear error at start
+    if (!title) return setError("Please enter the title.");
+    if (!story) return setError("Please enter the story.");
+
+    // Clear error and proceed with add/update
+    setError("");
+    type === "edit" ? updateTravelStory() : addNewTravelStory();
+
+    console.log("input data:" ,{title, storyImg, story, visitedLocation, visitedDate})
+  };
 
   const handleDeleteStoryImg = async () => {
     // Any logic for deleting the image, like an API call
@@ -26,7 +115,7 @@ const AddEditTravelStory = ({
   };
 
   return (
-    <div>
+    <div className="relative">
       <div className="flex items-center justify-between">
         <h5 className="text-xl font-medium text-slate-700">
           {type === "add" ? "Add Story" : "Update Story"}
@@ -34,23 +123,27 @@ const AddEditTravelStory = ({
 
         <div>
           <div className="flex items-center gap-3 bg-cyan-50/50 p-2 rounded-l-lg">
-            {type === "add" ? (
-              <button className="btn-small" onClick={handleAddOrUpdateClick}>
-                <MdAdd className="text-lg" /> ADD STORY
-              </button>
-            ) : (
-              <>
-                <button className="btn-small" onClick={handleAddOrUpdateClick}>
+            <button className="btn-small" onClick={handleAddOrUpdateClick}>
+              {type === "add" ? (
+                <>
+                  <MdAdd className="text-lg" /> ADD STORY
+                </>
+              ) : (
+                <>
                   <MdUpdate className="text-lg" /> UPDATE STORY
-                </button>
-              </>
-            )}
+                </>
+              )}
+            </button>
             <button onClick={onClose}>
               <MdClose className="text-xl text-slate-400 hover:text-slate-700" />
             </button>
           </div>
         </div>
+
       </div>
+
+      {error && <p className="text-red-500 text-xs">{error}</p>}
+
       <div>
         <div className="flex-1 flex flex-col gap-2 pt-4">
           <label className="input-label">TITLE</label>
@@ -87,7 +180,6 @@ const AddEditTravelStory = ({
           <label className="input-label">VISITED LOCATIONS</label>
           <TagInput tags={visitedLocation} setTags={setVisitedLocation} />
         </div>
-
       </div>
     </div>
   );

@@ -29,4 +29,3 @@ export const getUserInfo = async (setUserInfo, navigate) => {
     }
   }
 };
-
