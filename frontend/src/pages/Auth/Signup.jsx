@@ -80,7 +80,7 @@ const SignUp = () => {
             <input
               type="text"
               placeholder="Full Name"
-              className="input-box"
+              className="input-box text-sm pl-5"
               value={name}
               onChange={({ target }) => setName(target.value)}
             />
@@ -88,7 +88,7 @@ const SignUp = () => {
             <input
               type="text"
               placeholder="Email"
-              className="input-box"
+              className="input-box text-sm pl-5"
               value={email}
               onChange={({ target }) => setEmail(target.value)}
             />

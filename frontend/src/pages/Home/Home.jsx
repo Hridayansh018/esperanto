@@ -1,3 +1,4 @@
+//Home.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
@@ -108,6 +109,7 @@ const Home = () => {
           type={openAddEditModal.type}
           storyInfo={openAddEditModal.data}
           onClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
+          
         />
       </Modal>
 
@@ -122,8 +124,10 @@ const Home = () => {
         <ViewTravelStory 
           type={openViewModal.type}
           storyInfo={openViewModal.data || null}
-          onClose={() => setOpenViewModal({ isShown: false, data: null })}
-          onEditClick={() => {}}
+          onClose={(prevState) => setOpenViewModal({ isShown: false, ...prevState})}
+          onEditClick={() => {
+            setOpenViewModal({isShown:true, type:"add", data:null})
+          }}
           onDeleteClick={() => {}}
         />
       </Modal>
