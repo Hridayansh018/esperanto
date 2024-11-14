@@ -59,6 +59,11 @@ const Home = () => {
     setOpenViewModal({ isShown: true, data });
   };
 
+  const handleEdit = (data) => {
+    setOpenAddEditModal({ isShown: true, type: "edit", data });
+  };
+  
+
   useEffect(() => {
     getUserInfo(setUserInfo, navigate);
     getAllStories();
@@ -98,39 +103,40 @@ const Home = () => {
       </div>
 
       {/* Add and Edit Travel Story Modal */}
-      <Modal 
+      <Modal
         isOpen={openAddEditModal.isShown}
         onRequestClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
         style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 999 } }}
         appElement={document.getElementById('root')}
         className="model-box"
       >
-        <AddEditTravelStory 
+        <AddEditTravelStory
           type={openAddEditModal.type}
           storyInfo={openAddEditModal.data}
           onClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
-          
+
         />
       </Modal>
 
       {/* View Travel Story Modal */}
-      <Modal 
+      <Modal
         isOpen={openViewModal.isShown}
         onRequestClose={() => setOpenViewModal({ isShown: false, data: null })}
         style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 999 } }}
-        appElement={document.getElementById('root')}
+        appElement={document.getElementById("root")}
         className="model-box"
       >
-        <ViewTravelStory 
-          type={openViewModal.type}
-          storyInfo={openViewModal.data || null}
-          onClose={(prevState) => setOpenViewModal({ isShown: false, ...prevState})}
+        <ViewTravelStory
+          storyInfo={openViewModal.data}
+          onClose={() => setOpenViewModal({ isShown: false, data: null })}
           onEditClick={() => {
-            setOpenViewModal({isShown:true, type:"add", data:null})
-          }}
-          onDeleteClick={() => {}}
+            setOpenViewModal({ isShown: false, data: null });
+            handleEdit(openViewModal.data || null);
+          }}          
+          onDeleteClick={() => { }}
         />
       </Modal>
+
 
       <button
         className="w-16 h-16 flex items-center rounded-full bg-blue-400 hover:bg-cyan-400 fixed right-10 bottom-10 justify-center"
@@ -139,7 +145,7 @@ const Home = () => {
         <MdAdd className="text-[50px] text-white items-center" />
       </button>
 
-      <ToastContainer />  
+      <ToastContainer />
     </div>
   );
 };

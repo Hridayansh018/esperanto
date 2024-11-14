@@ -19,45 +19,14 @@ const AddEditTravelStory = ({
   const [visitedDate, setVisitedDate] = useState(storyInfo?.visitedDate || null);
   const [visitedLocation, setVisitedLocation] = useState(storyInfo?.visitedLocation || []);
   const [title, setTitle] = useState(storyInfo?.title || '');
-  const [storyImg, setStoryImg] = useState(storyInfo?.image || null);
+  const [storyImg, setStoryImg] = useState(storyInfo?.imageUrl || null);
   const [story, setStory] = useState(storyInfo?.story || '');
   const [error, setError] = useState("");
 
 
-  
-
   const updateTravelStory = async () => {
     try {
-      let imageUrl = storyImg;
-  
-      if (storyImg && typeof storyImg === "object") {
-        // Only upload if storyImg is a file object, not an existing URL
-        const imgUploadRes = await uploadImage(storyImg);
-        imageUrl = imgUploadRes.imageUrl || "";
-      }
-  
-      const response = await axiosInstance.post(`/edit-story/${storyInfo.id}`, {
-        title,
-        story,
-        imageUrl,
-        visitedLocation,
-        visitedDate: visitedDate ? moment(visitedDate).valueOf() : moment().valueOf(),
-      });
-  
-      if (response.data && response.data.story) {
-        toast.success("Story Updated Successfully");
-        getAllStories(); // Refresh stories
-        onClose(); // Close the modal
-      }
-    } catch (error) {
-      console.log("Error updating story:", error);
-      toast.error("Failed to update story. Please try again.");
-    }
-  };
-  
-
-  const addNewTravelStory = async () => {
-    try{
+      const storyId = storyInfo._id;
       let imageUrl = "";
 
       //upload image if present
@@ -72,18 +41,18 @@ const AddEditTravelStory = ({
           return;
         }
       }
-      
-      const response = await axiosInstance.post("/add-travel-story", {
+
+      const response = await axiosInstance.post("/edit-story" + storyId, {
         title,
         story,
         imageUrl: imageUrl || "",
         visitedLocation,
         visitedDate: visitedDate
-        ? moment(visitedDate).valueOf()
-        : moment().valueOf(),
+          ? moment(visitedDate).valueOf()
+          : moment().valueOf(),
       });
 
-      if(response.data && response.data.story){
+      if (response.data && response.data.story) {
         toast.success("Story Added Successfully");
         // Refresh Stories
         getAllStories();
@@ -93,8 +62,66 @@ const AddEditTravelStory = ({
     }
     catch (error) {
       console.log("Error adding story:", error);
-      toast.error("Failed to add story. Please try again.");
-    }    
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message)
+      } else (
+        setError("An unexpected Error Occurred, Please Try again")
+      )
+    }
+  };
+
+
+  const addNewTravelStory = async () => {
+    try {
+      let imageUrl = "";
+
+      //upload image if present
+      if (storyImg) {
+        try {
+          const imgUploadRes = await uploadImage(storyImg);
+          imageUrl = imgUploadRes.imageUrl || "";
+          onClose();
+        } catch (error) {
+          console.log("Image upload failed:", error);
+          toast.error("Image upload failed. Please try again.");
+          return;
+        }
+      }
+
+      const response = await axiosInstance.post("/add-travel-story", {
+        title,
+        story,
+        imageUrl: imageUrl || "",
+        visitedLocation,
+        visitedDate: visitedDate
+          ? moment(visitedDate).valueOf()
+          : moment().valueOf(),
+      });
+
+      if (response.data && response.data.story) {
+        toast.success("Story Added Successfully");
+        // Refresh Stories
+        getAllStories();
+        //close the modal
+        onClose();
+      }
+    }
+    catch (error) {
+      console.log("Error adding story:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message)
+      } else (
+        setError("An unexpected Error Occurred, Please Try again")
+      )
+    }
   };
 
   const handleAddOrUpdateClick = async () => {
@@ -106,7 +133,7 @@ const AddEditTravelStory = ({
     setError("");
     type === "edit" ? updateTravelStory() : addNewTravelStory();
 
-    console.log("input data:" ,{title, storyImg, story, visitedLocation, visitedDate})
+    console.log("input data:", { title, storyImg, story, visitedLocation, visitedDate })
   };
 
   const handleDeleteStoryImg = async () => {

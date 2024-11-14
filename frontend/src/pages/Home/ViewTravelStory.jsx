@@ -47,7 +47,7 @@ const ViewTravelStory = ({ onClose, onDeleteClick, onEditClick, storyInfo }) => 
         />
 
         <div>
-          <p className="text-sm text-slate-950 leading-6 text-justify whitespace-pre-line">
+          <p className="text-lg text-slate-950 leading-6 text-justify whitespace-pre-line">
             {storyInfo.story}
           </p>
         </div>

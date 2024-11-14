@@ -189,7 +189,7 @@ app.post("/edit-story/:id", authenticateToken, async (req, res) => {
       message: "All fields are required",
     });
   }
-up
+
   // Convert visitedDate from milliseconds to Date object
   const parsedVisitedDate = new Date(parseInt(visitedDate));
 
