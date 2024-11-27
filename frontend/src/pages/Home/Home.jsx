@@ -20,13 +20,16 @@ const Home = () => {
     type: "add",
     data: null,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [openViewModal, setOpenViewModal] = useState({
     isShown: false,
     data: null,
   });
+  const [filter, setFilter] = useState("");
 
   // Fetch all travel stories
+
   const getAllStories = async () => {
     try {
       const response = await axiosInstance.get("/get-all-stories");
@@ -86,9 +89,31 @@ const Home = () => {
   };
 
   // Open edit modal
-  const handleEdit = (data) => {
+  const handleEdit = async (data) => {
     setOpenAddEditModal({ isShown: true, type: "edit", data });
   };
+
+  const onSearchStory = async (query) => {
+    try{
+      const response = await axiosInstance.get("/search",{
+        params : {
+          query,
+        },
+      })
+
+      if (response.data && response.data.stories){
+        setFilter("search")
+        setAllStories(response.data.stories);
+      }
+    } catch (error){
+      console.log("An unexpected error occurred. Please try again");
+      
+    }
+  }
+
+  const handleClearSearch =() => {
+
+  }
 
   useEffect(() => {
     getUserInfo(setUserInfo, navigate);
@@ -97,7 +122,11 @@ const Home = () => {
 
   return (
     <div className="items-center justify-between">
-      <Navbar userInfo={userInfo} />
+      <Navbar userInfo={userInfo}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearch={onSearchStory}
+        handleClearSearch={handleClearSearch} />
       <div className="container mx-auto py-10">
         <div className="flex gap-10 items-center justify-center">
           <div className="flex-1">

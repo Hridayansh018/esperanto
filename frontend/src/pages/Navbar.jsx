@@ -2,7 +2,7 @@ import logo from "../assets/esperanto.png";
 import ProfileInfo from "../components/cards/ProfileInfo";
 import SearchBar from "../components/input/SearchBar";
 
-const Navbar = ({ userInfo, searchQuery, SatSearchQuery  }) => {
+const Navbar = ({ userInfo, searchQuery, SetSearchQuery, onSearchNote,handleClearSearch   }) => {
   // Define the onLogout function here
   const onLogout = () => {
     // Clear local storage and navigate to login (or other logic)
@@ -11,11 +11,14 @@ const Navbar = ({ userInfo, searchQuery, SatSearchQuery  }) => {
   };
 
   const handleSearch = async() => {
-
-  }
+    if(searchQuery){
+      onSearchNote(searchQuery)
+    }
+  };
 
   const onClearSearch = async() => {
-
+    handleClearSearch();
+    searchQuery("");
   }
 
 
