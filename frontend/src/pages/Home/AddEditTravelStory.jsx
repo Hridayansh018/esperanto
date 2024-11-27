@@ -9,7 +9,7 @@ import moment from "moment";
 import { toast } from "react-toastify";
 import uploadImage from "../../utils/uploadImage";
 
-
+  
 const AddEditTravelStory = ({
   storyInfo,
   type,
@@ -23,68 +23,60 @@ const AddEditTravelStory = ({
   const [story, setStory] = useState(storyInfo?.story || '');
   const [error, setError] = useState("");
 
-
   const updateTravelStory = async () => {
     try {
       const storyId = storyInfo._id;
-      let imageUrl = "";
+      let imageUrl = storyInfo.imageUrl || "";
 
-      //upload image if present
-      if (storyImg) {
-        try {
-          const imgUploadRes = await uploadImage(storyImg);
-          imageUrl = imgUploadRes.imageUrl || "";
-          onClose();
-        } catch (error) {
-          console.log("Image upload failed:", error);
-          toast.error("Image upload failed. Please try again.");
-          return;
-        }
-      }
-
-      const response = await axiosInstance.post("/edit-story" + storyId, {
+      let postData = {
         title,
         story,
-        imageUrl: imageUrl || "",
+        imageUrl,
         visitedLocation,
         visitedDate: visitedDate
           ? moment(visitedDate).valueOf()
           : moment().valueOf(),
-      });
+      };
+
+      // If a new image is selected, upload it
+      if (typeof storyImg === "object") {
+        const imgUploadRes = await uploadImage(storyImg);
+        imageUrl = imgUploadRes.imageUrl || "";
+        postData.imageUrl = imageUrl;
+      }
+
+      const response = await axiosInstance.post(`/edit-story/${storyId}`, postData);
 
       if (response.data && response.data.story) {
-        toast.success("Story Added Successfully");
-        // Refresh Stories
-        getAllStories();
-        //close the modal
+        toast.success("Story Updated Successfully");
+
+        // Update the local state directly
+        getAllStories((prevStories) =>
+          prevStories.map((story) =>
+            story._id === storyId ? response.data.story : story
+          )
+        );
+
         onClose();
       }
-    }
-    catch (error) {
-      console.log("Error adding story:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        setError(error.response.data.message)
-      } else (
-        setError("An unexpected Error Occurred, Please Try again")
-      )
+    } catch (error) {
+      console.log("Error updating story:", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("An unexpected Error Occurred, Please Try again");
+      }
     }
   };
-
 
   const addNewTravelStory = async () => {
     try {
       let imageUrl = "";
 
-      //upload image if present
       if (storyImg) {
         try {
           const imgUploadRes = await uploadImage(storyImg);
           imageUrl = imgUploadRes.imageUrl || "";
-          onClose();
         } catch (error) {
           console.log("Image upload failed:", error);
           toast.error("Image upload failed. Please try again.");
@@ -95,7 +87,7 @@ const AddEditTravelStory = ({
       const response = await axiosInstance.post("/add-travel-story", {
         title,
         story,
-        imageUrl: imageUrl || "",
+        imageUrl,
         visitedLocation,
         visitedDate: visitedDate
           ? moment(visitedDate).valueOf()
@@ -104,23 +96,19 @@ const AddEditTravelStory = ({
 
       if (response.data && response.data.story) {
         toast.success("Story Added Successfully");
-        // Refresh Stories
-        getAllStories();
-        //close the modal
+
+        // Directly update the local state
+        getAllStories((prevStories) => [response.data.story, ...prevStories]);
+
         onClose();
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.log("Error adding story:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        setError(error.response.data.message)
-      } else (
-        setError("An unexpected Error Occurred, Please Try again")
-      )
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("An unexpected Error Occurred, Please Try again");
+      }
     }
   };
 
@@ -137,10 +125,41 @@ const AddEditTravelStory = ({
   };
 
   const handleDeleteStoryImg = async () => {
-    // Any logic for deleting the image, like an API call
-    setStoryImg(null); // Reset the image in component state
+    try {
+      if (!storyInfo.imageUrl) return;
+      
+      // Use encodeURIComponent to ensure URL is correctly formatted
+      const encodedImageUrl = encodeURIComponent(storyInfo.imageUrl);
+  
+      const deleteImgRes = await axiosInstance.delete(`/delete-image`, {
+        params: { imageUrl: encodedImageUrl }
+      });
+  
+      if (deleteImgRes.data) {
+        const storyId = storyInfo._id;
+  
+        // Update the story with an empty image URL
+        const postData = {
+          title,
+          story,
+          visitedLocation,
+          visitedDate: moment(visitedDate).valueOf(),
+          imageUrl: "", // Set image URL as empty after deletion
+        };
+  
+        const response = await axiosInstance.post(`/edit-story/${storyId}`, postData);
+  
+        if (response.data && response.data.story) {
+          setStoryImg(null);
+          toast.success("Image deleted successfully and story updated!");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      toast.error("Failed to delete image, please try again.");
+    }
   };
-
+  
   return (
     <div className="relative">
       <div className="flex items-center justify-between">
@@ -166,7 +185,6 @@ const AddEditTravelStory = ({
             </button>
           </div>
         </div>
-
       </div>
 
       {error && <p className="text-red-500 text-xs">{error}</p>}

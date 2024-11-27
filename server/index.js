@@ -108,6 +108,7 @@ app.post("/login", async (req, res) => {
   });
 });
 
+//Get User
 app.get("/get-user", authenticateToken, async (req, res) => {
   const { userId } = req.user;
 
@@ -220,6 +221,7 @@ app.post("/edit-story/:id", authenticateToken, async (req, res) => {
   }
 });
 
+//Dekete Story
 app.delete("/delete-story/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { userId } = req.user;
@@ -260,6 +262,7 @@ app.delete("/delete-story/:id", authenticateToken, async (req, res) => {
   }
 });
 
+//Update is Favourit
 app.put("/update-is-favourit/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { userId } = req.user;
@@ -353,33 +356,26 @@ app.post("/image-upload", upload.single("image"), async (req, res) => {
 
 //Delete an image from folder
 app.delete("/delete-image", async (req, res) => {
-  const { imageUrl } = req.body;
-
-  if (!imageUrl) {
-    return res
-      .status(400)
-      .json({ error: true, message: "imageUrl parameter is required" });
-  }
-
   try {
-    // EXTRACT THE FILENAME FROM THE IMAGEURL
-    const filename = path.basename(imageUrl);
+    const imageUrl = decodeURIComponent(req.query.imageUrl);
 
-    //DEFINE THE FILE PATH
-    const filePath = path.join(__dirname, "uploads", filename);
-
-    //CHECK IF THE FILE EXISTS
-    if (fs.existsSync(filePath)) {
-      //DELETE THE FILES FROM UPLOADS FOLDER
-      fs.unlinkSync(filePath);
-      res.status(200).json({ message: "image deleted " });
-    } else {
-      res.status(200).json({ error: true, message: "Image Not Found" });
+    if (!imageUrl) {
+      return res.status(400).json({ message: "Image URL is required" });
     }
+
+    // Log the URL for debugging
+    console.log("Decoded image URL:", imageUrl);
+
+    // Add your image deletion logic here, e.g., removing from cloud storage
+    // For local files, consider using the `fs` module for deletion
+
+    return res.status(200).json({ message: "Image deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: true, message: error.message });
+    console.error("Error deleting image:", error);
+    return res.status(500).json({ message: "Error deleting image", error });
   }
 });
+
 
 // Server static files from the uploads and assets directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

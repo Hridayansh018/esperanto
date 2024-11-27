@@ -17,7 +17,7 @@ const ViewTravelStory = ({ onClose, onDeleteClick, onEditClick, storyInfo }) => 
           </button>
           <button onClick={onDeleteClick} className="flex items-center btn-delete">
             <MdDeleteOutline className="text-lg" />
-            DELETE STORY
+            DELETE STORY  
           </button>
           <button onClick={onClose} className="">
             <MdClose className="text-xl text-slate-400 hover:text-slate-700" />
